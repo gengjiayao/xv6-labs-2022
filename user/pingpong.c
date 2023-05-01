@@ -11,6 +11,7 @@ int main() {
         close(p[0]);
         fprintf(1, "%d: received ping\n", getpid());
         write(p[1], bf, 1);
+        close(p[1]);
     } else {
         char bf[1];
         bf[0] = '1';
@@ -18,6 +19,7 @@ int main() {
         close(p[1]);
         read(p[0], bf, 1);
         fprintf(1, "%d: received pong\n", getpid());
+        close(p[0]);
     }
     exit(0);
 }
