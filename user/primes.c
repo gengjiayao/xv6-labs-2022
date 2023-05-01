@@ -7,6 +7,7 @@ void newfork(int _pipe[2]) {
     close(_pipe[1]); 
     if (read(_pipe[0], &prime, 4) != 4) {
         fprintf(2, "Error: read from pipe wrong!\n");
+        close(_pipe[0]);
         exit(1);
     }
     fprintf(1, "prime %d\n", prime);
@@ -23,6 +24,7 @@ void newfork(int _pipe[2]) {
             close(_pipe[0]);
             wait(0);
         } else {
+            close(_pipe[0]);
             newfork(_pipe2);
         }
     }
@@ -38,6 +40,7 @@ int main(int argc, char *argv[]) {
         for (int i = 2; i <= 35; i++) {
             if (write(_pipe[1], &i, 4) != 4) {
                 fprintf(2, "Error: write to pipe wrong!\n");
+                close(_pipe[1]);
                 exit(1);
             }
         }
