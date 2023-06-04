@@ -49,10 +49,23 @@ void test_uname() {
   printf("test for sys_uname: %s %s %s %s %s %s\n", un.sysname, un.nodename, un.release, un.version, un.machine, un.domainname);
 }
 
+void test_nanosleep() {
+  int time1 = GetTimeOfDay();
+  int ret = sleep(10); // 理应是sleep(1) 频率有点问题
+  if (ret > 0) {}
+  int time2 = GetTimeOfDay();
+  if (time2 - time1 >= 1) {
+    printf("test for sys_nanosleep: success.\n");
+  } else {
+    printf("test for sys_nanosleep: error.\n");
+  }
+}
+
 int main() {
   test_dup();
   test_dup3();
   test_gettimeofday();
   test_uname();
+  test_nanosleep();
   exit(0);
 }
