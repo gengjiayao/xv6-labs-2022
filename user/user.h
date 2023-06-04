@@ -1,4 +1,5 @@
 struct stat;
+struct utsname;
 
 // system calls
 int fork(void);
@@ -22,6 +23,10 @@ int getpid(void);
 char* sbrk(int);
 int sleep(int);
 int uptime(void);
+int dup3(int, int);
+int GetTimeOfDay(void);
+int uname(struct utsname *);
+int test_proc(int);
 
 // ulib.c
 int stat(const char*, struct stat*);

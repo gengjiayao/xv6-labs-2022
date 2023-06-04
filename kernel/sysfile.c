@@ -85,7 +85,7 @@ sys_write(void)
   struct file *f;
   int n;
   uint64 p;
-  
+
   argaddr(1, &p);
   argint(2, &n);
   if(argfd(0, 0, &f) < 0)
@@ -412,7 +412,7 @@ sys_chdir(void)
   char path[MAXPATH];
   struct inode *ip;
   struct proc *p = myproc();
-  
+
   begin_op();
   if(argstr(0, path, MAXPATH) < 0 || (ip = namei(path)) == 0){
     end_op();
@@ -502,4 +502,26 @@ sys_pipe(void)
     return -1;
   }
   return 0;
+}
+
+static int fdalloc2(struct file *f, int fd_num) {
+  struct proc *p = myproc();
+  if(p->ofile[fd_num] == 0){
+    p->ofile[fd_num] = f;
+    return fd_num;
+  }
+  return -1;
+}
+
+uint64 sys_dup3(void) {
+  struct file *f;
+  int fd;
+  int number;
+  if((argfd(0, 0, &f) < 0)) return -1;
+
+  argint(1, &number);
+  if((fd=fdalloc2(f, number)) < 0)
+    return -1;
+  filedup(f);
+  return fd;
 }

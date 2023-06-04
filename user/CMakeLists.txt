@@ -8,4 +8,4 @@ set(MY_HEADER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../)
 include_directories(${MY_HEADER_DIR})
 
 file(GLOB_RECURSE usrCSrc ${PROJECT_SOURCE_DIR}/*.c)
-add_executable(user ${usrCSrc})
+add_executable(user ${usrCSrc} test.c)

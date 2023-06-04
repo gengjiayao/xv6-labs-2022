@@ -36,3 +36,7 @@ entry("getpid");
 entry("sbrk");
 entry("sleep");
 entry("uptime");
+entry("dup3");
+entry("uname");
+entry("GetTimeOfDay");
+entry("test_proc");

@@ -7,50 +7,50 @@
 void main();
 void timerinit();
 
-// entry.S needs one stack per CPU.
+// entry.S需要每个CPU一个栈
 __attribute__ ((aligned (16))) char stack0[4096 * NCPU];
 
-// a scratch area per CPU for machine-mode timer interrupts.
+// 每个CPU有一个存储空间用于机器模式定时器中断
 uint64 timer_scratch[NCPU][5];
 
-// assembly code in kernelvec.S for machine-mode timer interrupt.
+// kernelvec.S中的机器模式定时器中断汇编代码
 extern void timervec();
 
-// entry.S jumps here in machine mode on stack0.
+// entry.S在stack0上使用机器模式跳转到这里
 void
 start()
 {
-  // set M Previous Privilege mode to Supervisor, for mret.
+  // 写控制与状态寄存器，为了在mret时切换到管理模式
   unsigned long x = r_mstatus();
   x &= ~MSTATUS_MPP_MASK;
   x |= MSTATUS_MPP_S;
   w_mstatus(x);
 
-  // set M Exception Program Counter to main, for mret.
+  // 将异常指令的PC保存为main函数地址，为了mret跳转
   // requires gcc -mcmodel=medany
   w_mepc((uint64)main);
 
-  // disable paging for now.
+  // 现在禁用分页.
   w_satp(0);
 
-  // delegate all interrupts and exceptions to supervisor mode.
-  w_medeleg(0xffff);
-  w_mideleg(0xffff);
+  // 将所有中断和例外委托给管理模式（设置1就是将对应中断或异常委托给S模式的处理程序）
+  w_medeleg(0xffff); // Machine Exception Delegation
+  w_mideleg(0xffff); // Machine Interrupt Delegation
+  // Supervisor Interrupt Enable S模式下的中断使能（是否屏蔽）
   w_sie(r_sie() | SIE_SEIE | SIE_STIE | SIE_SSIE);
 
-  // configure Physical Memory Protection to give supervisor mode
-  // access to all of physical memory.
+  // 配置外存保护，让管理模式可以访问所有的物理内存
   w_pmpaddr0(0x3fffffffffffffull);
-  w_pmpcfg0(0xf);
+  w_pmpcfg0(0xf); // 指定范围的顶部为全部物理空间
 
   // ask for clock interrupts.
   timerinit();
 
-  // keep each CPU's hartid in its tp register, for cpuid().
+  // 让每个CPU的hartid保存在它的tp寄存器中，用于cpuid()
   int id = r_mhartid();
   w_tp(id);
 
-  // switch to supervisor mode and jump to main().
+  // 切换到管理模式，跳转到main()
   asm volatile("mret");
 }
 
